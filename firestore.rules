@@ -68,20 +68,45 @@ service cloud.firestore {
     }
 
     // --- Expense Rules ---
+    function isValidExpenseCategory(data) {
+      return data.keys().hasAll(['name', 'type']) &&
+             data.keys().size() == 2 &&
+             data.name is string && data.name.size() > 0 &&
+             data.type in ['inventory', 'operational', 'other'];
+    }
+
     function isValidExpense(data) {
-      return data.keys().hasAll(['title', 'amount', 'category', 'date']) &&
-             data.keys().size() == 4 &&
+      return data.keys().hasAll(['title', 'amount', 'date', 'categoryId', 'paymentMethod', 'isInventory', 'createdAt']) &&
              data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
              data.amount is number && data.amount >= 0 &&
-             data.category in ['purchase', 'rent', 'utility', 'salary', 'transport', 'other'] &&
-             data.date is number;
+             data.date is number &&
+             data.categoryId is string &&
+             data.paymentMethod in ['cash', 'card', 'upi', 'bank_transfer', 'digital'] &&
+             data.isInventory is bool &&
+             data.createdAt is number &&
+             (!data.keys().hasAny(['categoryName']) || data.categoryName is string) &&
+             (!data.keys().hasAny(['vendorName']) || data.vendorName is string) &&
+             (!data.keys().hasAny(['referenceNumber']) || data.referenceNumber is string) &&
+             (!data.keys().hasAny(['description']) || data.description is string) &&
+             (!data.keys().hasAny(['receiptImage']) || data.receiptImage is string) &&
+             (!data.keys().hasAny(['productId']) || data.productId is string) &&
+             (!data.keys().hasAny(['quantity']) || data.quantity is number) &&
+             (!data.keys().hasAny(['unit']) || data.unit is string) &&
+             (!data.keys().hasAny(['unitPrice']) || data.unitPrice is number);
+    }
+
+    match /expenseCategories/{categoryId} {
+      allow list: if isSignedIn();
+      allow get: if isSignedIn();
+      allow create, update: if isEmailVerified() && isValidExpenseCategory(incoming());
+      allow delete: if isEmailVerified();
     }
 
     match /expenses/{expenseId} {
       allow read: if isSignedIn();
       allow create: if isEmailVerified() && isValidId(expenseId) && isValidExpense(incoming());
       allow update: if isEmailVerified() && isValidExpense(incoming()) && 
-                    incoming().diff(existing()).affectedKeys().hasOnly(['title', 'amount', 'category', 'date']);
+                    incoming().diff(existing()).affectedKeys().hasAny(['title', 'amount', 'date', 'categoryId', 'paymentMethod', 'isInventory', 'vendorName', 'referenceNumber', 'description', 'receiptImage', 'productId', 'quantity', 'unit', 'unitPrice']);
       allow delete: if isEmailVerified();
     }
   }

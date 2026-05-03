@@ -49,22 +49,25 @@ export default function POS() {
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { ...product, quantity: 1, selectedUnit: product.unit }];
     });
   };
 
-  const updateQuantity = (id: string, delta: number) => {
+  const updateItem = (id: string, updates: Partial<CartItem>) => {
     setCart(prev => prev.map(item => {
       if (item.id === id) {
-        const newQty = Math.max(0, item.quantity + delta);
-        return { ...item, quantity: newQty };
+        return { ...item, ...updates };
       }
       return item;
-    }).filter(item => item.quantity > 0));
+    }));
+  };
+
+  const removeItem = (id: string) => {
+    setCart(prev => prev.filter(item => item.id !== id));
   };
 
   const handleCheckout = async () => {
-    if (cart.length === 0) return;
+    if (cart.length === 0 || total <= 0) return;
     setIsProcessing(true);
     try {
       await dbService.addSale({
@@ -83,7 +86,16 @@ export default function POS() {
     }
   };
 
-  const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const calculateItemTotal = (item: CartItem) => {
+    if (item.manualAmount !== undefined) return item.manualAmount;
+    let effectivePrice = item.price;
+    if (item.selectedUnit === 'g') {
+      effectivePrice = item.price / 1000;
+    }
+    return effectivePrice * item.quantity;
+  };
+
+  const subtotal = cart.reduce((acc, item) => acc + calculateItemTotal(item), 0);
   const tax = subtotal * 0.05; // 5% GST example
   const total = subtotal + tax;
 
@@ -93,7 +105,7 @@ export default function POS() {
       <div className="flex-1 flex flex-col gap-6 min-w-0">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-natural-text font-serif italic">Sales Terminal</h2>
+            <h2 className="text-2xl font-bold text-natural-text">Sales Terminal</h2>
             <p className="text-sm text-natural-text/60 font-medium">Select products for the current order</p>
           </div>
           <div className="relative">
@@ -125,18 +137,18 @@ export default function POS() {
           ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pb-4">
+        <div className="flex-1 overflow-y-auto pr-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pb-4 content-start">
           {filteredProducts.map(product => (
             <button
               key={product.id}
               onClick={() => addToCart(product)}
               disabled={product.stock <= 0}
               className={cn(
-                "bg-white p-5 rounded-xl border border-natural-border shadow-sm hover:border-natural-primary hover:shadow-md transition-all text-left flex flex-col justify-between group relative",
+                "bg-white p-5 rounded-xl border border-natural-border shadow-sm hover:border-natural-primary hover:shadow-md transition-all text-left flex flex-col group relative",
                 product.stock <= 0 && "opacity-50 grayscale cursor-not-allowed"
               )}
             >
-              <div>
+              <div className="flex flex-col h-full">
                 <div className="flex justify-between items-start mb-3">
                   <div className="p-2 bg-natural-sidebar rounded-lg group-hover:bg-natural-accent transition-colors">
                     <Tag size={16} className="text-natural-primary/40 group-hover:text-natural-primary" />
@@ -144,12 +156,13 @@ export default function POS() {
                   <span className="text-[10px] font-bold text-natural-primary/50 uppercase tracking-widest">{product.category}</span>
                 </div>
                 <h3 className="font-bold text-natural-text mb-1 leading-tight">{product.name}</h3>
-                <p className="text-[10px] text-natural-text/40 font-bold uppercase tracking-wider">{product.stock} {product.unit} available</p>
-              </div>
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-lg font-black text-natural-text">Rs. {product.price}</span>
-                <div className="p-2 bg-natural-primary text-white rounded-xl opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 shadow-sm shadow-natural-primary/20">
-                  <Plus size={16} />
+                <p className="text-[10px] text-natural-text/40 font-bold uppercase tracking-wider mb-6">{product.stock} {product.unit} available</p>
+                
+                <div className="mt-auto flex items-center justify-between">
+                  <span className="text-lg font-black text-natural-text">Rs. {product.price}</span>
+                  <div className="p-2 bg-natural-primary text-white rounded-xl opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 shadow-sm shadow-natural-primary/20">
+                    <Plus size={16} />
+                  </div>
                 </div>
               </div>
               {product.stock <= 5 && product.stock > 0 && (
@@ -193,28 +206,85 @@ export default function POS() {
             </div>
           ) : (
             cart.map(item => (
-              <div key={item.id} className="flex gap-4 items-center animate-in fade-in slide-in-from-right-2 duration-300">
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-natural-text leading-tight">{item.name}</p>
-                  <p className="text-[10px] font-bold text-natural-text/40 uppercase tracking-widest">Rs. {item.price} • {item.unit}</p>
-                </div>
-                <div className="flex items-center gap-3 bg-natural-sidebar px-3 py-1.5 rounded-xl border border-natural-border">
+              <div key={item.id} className="flex flex-col gap-3 p-4 bg-natural-sidebar/30 rounded-xl border border-natural-border animate-in fade-in slide-in-from-right-2 duration-300">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm font-bold text-natural-text leading-tight">{item.name}</p>
+                    <p className="text-[10px] font-bold text-natural-text/40 uppercase tracking-widest">Base: Rs. {item.price} / {item.unit}</p>
+                  </div>
                   <button 
-                    onClick={() => updateQuantity(item.id, -1)}
-                    className="p-1 text-natural-primary hover:text-natural-tertiary transition-colors"
+                    onClick={() => removeItem(item.id)}
+                    className="text-natural-tertiary/40 hover:text-natural-tertiary transition-colors p-1"
                   >
-                    <Minus size={14} />
-                  </button>
-                  <span className="text-sm font-black w-4 text-center text-natural-primary">{item.quantity}</span>
-                  <button 
-                    onClick={() => updateQuantity(item.id, 1)}
-                    className="p-1 text-natural-primary hover:text-natural-tertiary transition-colors"
-                  >
-                    <Plus size={14} />
+                    <Trash2 size={14} />
                   </button>
                 </div>
-                <div className="text-right w-20">
-                  <p className="text-sm font-black text-natural-text">Rs. {item.price * item.quantity}</p>
+
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 flex items-center bg-white rounded-lg border border-natural-border overflow-hidden focus-within:ring-1 focus-within:ring-natural-primary">
+                    <input 
+                      type="number" 
+                      step="any"
+                      value={item.quantity}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value) || 0;
+                        updateItem(item.id, { quantity: val, manualAmount: undefined });
+                      }}
+                      className="w-full px-3 py-1.5 text-xs font-bold text-natural-text focus:outline-none"
+                    />
+                    <select 
+                      value={item.selectedUnit || item.unit}
+                      onChange={(e) => {
+                        const newUnit = e.target.value as any;
+                        const oldUnit = item.selectedUnit || item.unit;
+                        let newQty = item.quantity;
+                        
+                        // Auto-convert quantity when switching between KG and G
+                        if (oldUnit === 'kg' && newUnit === 'g') newQty = item.quantity * 1000;
+                        else if (oldUnit === 'g' && newUnit === 'kg') newQty = item.quantity / 1000;
+                        
+                        updateItem(item.id, { 
+                          selectedUnit: newUnit, 
+                          quantity: newQty,
+                          manualAmount: undefined 
+                        });
+                      }}
+                      className="bg-natural-sidebar px-2 py-1.5 text-[10px] font-black uppercase border-l border-natural-border focus:outline-none cursor-pointer"
+                    >
+                      {item.unit === 'kg' ? (
+                        <>
+                          <option value="kg">KG</option>
+                          <option value="g">G</option>
+                        </>
+                      ) : (
+                        <option value="pcs">PCS</option>
+                      )}
+                    </select>
+                  </div>
+
+                  <div className="w-24 relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-black text-natural-text/40">Rs.</span>
+                    <input 
+                      type="number"
+                      value={item.manualAmount !== undefined ? item.manualAmount : calculateItemTotal(item).toFixed(2)}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value) || 0;
+                        let effectivePrice = item.price;
+                        if (item.selectedUnit === 'g') {
+                          effectivePrice = item.price / 1000;
+                        }
+                        const newQty = effectivePrice > 0 ? val / effectivePrice : 0;
+                        updateItem(item.id, { 
+                          manualAmount: val,
+                          quantity: Number(newQty.toFixed(3))
+                        });
+                      }}
+                      className={cn(
+                        "w-full pl-7 pr-2 py-1.5 bg-white border rounded-lg text-xs font-black text-right focus:outline-none focus:ring-1 focus:ring-natural-primary",
+                        item.manualAmount !== undefined ? "border-natural-tertiary text-natural-tertiary" : "border-natural-border text-natural-text"
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
             ))
@@ -271,11 +341,11 @@ export default function POS() {
           </div>
 
           <button 
-            disabled={cart.length === 0 || isProcessing}
+            disabled={cart.length === 0 || isProcessing || total <= 0 || cart.some(item => calculateItemTotal(item) <= 0)}
             onClick={handleCheckout}
             className={cn(
               "w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg",
-              cart.length > 0 && !isProcessing
+              (cart.length > 0 && total > 0 && cart.every(item => calculateItemTotal(item) > 0) && !isProcessing)
                 ? "bg-natural-primary text-natural-accent shadow-natural-primary/20 hover:opacity-90" 
                 : "bg-natural-border text-natural-text/30 cursor-not-allowed shadow-none"
             )}

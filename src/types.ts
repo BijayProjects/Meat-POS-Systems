@@ -12,6 +12,8 @@ export interface Product {
 
 export interface CartItem extends Product {
   quantity: number;
+  selectedUnit?: 'kg' | 'pcs' | 'g';
+  manualAmount?: number;
 }
 
 export interface Sale {
@@ -22,12 +24,30 @@ export interface Sale {
   paymentMethod: 'cash' | 'card' | 'upi';
 }
 
+export interface ExpenseCategory {
+  id: string;
+  name: string;
+  type: 'inventory' | 'operational' | 'other';
+}
+
 export interface Expense {
   id: string;
   title: string;
   amount: number;
-  category: 'purchase' | 'rent' | 'utility' | 'salary' | 'transport' | 'other';
   date: number; // timestamp
+  categoryId: string;
+  categoryName: string;
+  vendorName: string;
+  paymentMethod: 'cash' | 'card' | 'upi' | 'bank_transfer' | 'digital';
+  referenceNumber: string;
+  description: string;
+  receiptImage?: string;
+  isInventory: boolean;
+  productId?: string;
+  quantity?: number;
+  unit?: string;
+  unitPrice?: number;
+  createdAt: number;
 }
 
 export interface InventoryLog {

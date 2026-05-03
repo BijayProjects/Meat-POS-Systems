@@ -26,17 +26,39 @@
       },
       "required": ["items", "total", "date", "paymentMethod"]
     },
+    "ExpenseCategory": {
+      "title": "Expense Category",
+      "description": "Category for shop expenses",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "enum": ["inventory", "operational", "other"] }
+      },
+      "required": ["name", "type"]
+    },
     "Expense": {
       "title": "Expense",
-      "description": "A shop expenditure",
+      "description": "A comprehensive bill record for the shop",
       "type": "object",
       "properties": {
         "title": { "type": "string" },
         "amount": { "type": "number" },
-        "category": { "enum": ["purchase", "rent", "utility", "salary", "transport", "other"] },
-        "date": { "type": "number" }
+        "date": { "type": "number" },
+        "categoryId": { "type": "string" },
+        "categoryName": { "type": "string" },
+        "vendorName": { "type": "string" },
+        "paymentMethod": { "enum": ["cash", "card", "upi", "bank_transfer", "digital"] },
+        "referenceNumber": { "type": "string" },
+        "description": { "type": "string" },
+        "receiptImage": { "type": "string" },
+        "isInventory": { "type": "boolean" },
+        "productId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string" },
+        "unitPrice": { "type": "number" },
+        "createdAt": { "type": "number" }
       },
-      "required": ["title", "amount", "category", "date"]
+      "required": ["title", "amount", "date", "categoryId", "paymentMethod", "isInventory", "createdAt"]
     }
   },
   "firestore": {
@@ -51,6 +73,10 @@
     "/expenses": {
       "schema": "Expense",
       "description": "Expense records"
+    },
+    "/expenseCategories": {
+      "schema": "ExpenseCategory",
+      "description": "Configurable expense categories"
     }
   }
 }

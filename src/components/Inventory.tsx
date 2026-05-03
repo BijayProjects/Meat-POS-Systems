@@ -17,7 +17,8 @@ import { dbService } from '../services/dbService';
 export default function Inventory() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<Omit<Product, 'id'>>({
     name: '',
     category: 'meat',
@@ -28,15 +29,16 @@ export default function Inventory() {
   });
 
   useEffect(() => {
-    const unsubscribe = dbService.subscribeProducts(setProducts);
-    return () => unsubscribe();
-  }, []);
-
-  const handleAddProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await dbService.addProduct(formData);
-      setIsAddOpen(false);
+    if (editingProduct) {
+      setFormData({
+        name: editingProduct.name,
+        category: editingProduct.category,
+        price: editingProduct.price,
+        unit: editingProduct.unit,
+        stock: editingProduct.stock,
+        minStock: editingProduct.minStock || 2,
+      });
+    } else {
       setFormData({
         name: '',
         category: 'meat',
@@ -45,10 +47,49 @@ export default function Inventory() {
         stock: 0,
         minStock: 2,
       });
+    }
+  }, [editingProduct]);
+
+  useEffect(() => {
+    const unsubscribe = dbService.subscribeProducts(setProducts);
+    return () => unsubscribe();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingProduct) {
+        await dbService.updateProduct(editingProduct.id, formData);
+      } else {
+        await dbService.addProduct(formData);
+      }
+      setIsModalOpen(false);
+      setEditingProduct(null);
     } catch (error) {
       console.error(error);
-      alert("Failed to add product");
+      alert(`Failed to ${editingProduct ? 'update' : 'add'} product`);
     }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this product? This action cannot be undone.")) {
+      try {
+        await dbService.deleteProduct(id);
+      } catch (error) {
+        console.error(error);
+        alert("Failed to delete product");
+      }
+    }
+  };
+
+  const handleEditClick = (product: Product) => {
+    setEditingProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleAddClick = () => {
+    setEditingProduct(null);
+    setIsModalOpen(true);
   };
 
   const filteredProducts = products.filter(p => 
@@ -59,7 +100,7 @@ export default function Inventory() {
     <div className="space-y-8 animate-in fade-in duration-500 relative">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-natural-text font-serif italic tracking-tight">Inventory Control</h2>
+          <h2 className="text-3xl font-bold text-natural-text tracking-tight">Inventory Control</h2>
           <p className="text-natural-text/60 mt-1">Manage your product list and stock levels</p>
         </div>
         <div className="flex items-center gap-3">
@@ -74,7 +115,7 @@ export default function Inventory() {
             />
           </div>
           <button 
-            onClick={() => setIsAddOpen(true)}
+            onClick={handleAddClick}
             className="bg-natural-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-md shadow-natural-primary/20 active:scale-95 text-sm uppercase tracking-widest"
           >
             <Plus size={18} />
@@ -83,17 +124,17 @@ export default function Inventory() {
         </div>
       </header>
 
-      {/* Add Modal */}
-      {isAddOpen && (
+      {/* Add/Edit Modal */}
+      {isModalOpen && (
         <div className="fixed inset-0 bg-natural-text/20 backdrop-blur-md z-[60] flex items-center justify-center p-4">
           <div className="bg-white rounded-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200 border border-natural-border shadow-2xl">
             <div className="p-8 bg-natural-sidebar border-b border-natural-border flex items-center justify-between">
-              <h3 className="font-bold text-natural-text text-xl">New Product Entry</h3>
-              <button onClick={() => setIsAddOpen(false)} className="text-natural-primary/40 hover:text-natural-primary">
+              <h3 className="font-bold text-natural-text text-xl">{editingProduct ? 'Edit Product' : 'New Product Entry'}</h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-natural-primary/40 hover:text-natural-primary">
                 <X size={24} />
               </button>
             </div>
-            <form onSubmit={handleAddProduct} className="p-8 space-y-6">
+            <form onSubmit={handleSubmit} className="p-8 space-y-6">
               <div>
                 <label className="block text-[10px] font-black text-natural-primary/40 uppercase tracking-[0.2em] mb-2">Product Name</label>
                 <input 
@@ -125,8 +166,8 @@ export default function Inventory() {
                     value={formData.unit}
                     onChange={e => setFormData({...formData, unit: e.target.value as any})}
                   >
-                    <option value="kg">kg</option>
-                    <option value="pcs">pcs</option>
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="pcs">Piece (pcs)</option>
                   </select>
                 </div>
               </div>
@@ -142,7 +183,7 @@ export default function Inventory() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-natural-primary/40 uppercase tracking-[0.2em] mb-2">Initial Stock</label>
+                  <label className="block text-[10px] font-black text-natural-primary/40 uppercase tracking-[0.2em] mb-2">{editingProduct ? 'Current Stock' : 'Initial Stock'}</label>
                   <input 
                     required
                     type="number" 
@@ -152,8 +193,18 @@ export default function Inventory() {
                   />
                 </div>
               </div>
+              <div>
+                <label className="block text-[10px] font-black text-natural-primary/40 uppercase tracking-[0.2em] mb-2">Restock Alert Threshold</label>
+                <input 
+                  required
+                  type="number" 
+                  className="w-full border-natural-border rounded-xl p-4 focus:ring-natural-primary focus:border-natural-primary bg-natural-sidebar/30 text-natural-text font-bold" 
+                  value={formData.minStock}
+                  onChange={e => setFormData({...formData, minStock: Number(e.target.value)})}
+                />
+              </div>
               <button type="submit" className="w-full py-5 bg-natural-primary text-white rounded-xl font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-xl shadow-natural-primary/20 active:scale-95">
-                Commit to Inventory
+                {editingProduct ? 'Update Product' : 'Commit to Inventory'}
               </button>
             </form>
           </div>
@@ -176,7 +227,7 @@ export default function Inventory() {
             <tbody className="divide-y divide-natural-border">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-8 py-16 text-center text-natural-text/40 font-bold uppercase tracking-widest text-xs italic">The inventory is currently empty.</td>
+                  <td colSpan={6} className="px-8 py-16 text-center text-natural-text/40 font-bold uppercase tracking-widest text-xs">The inventory is currently empty.</td>
                 </tr>
               ) : (
                 filteredProducts.map(product => {
@@ -222,11 +273,17 @@ export default function Inventory() {
                       </td>
                       <td className="px-8 py-6 text-right">
                         <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-natural-border text-natural-text/40 hover:text-natural-primary transition-all shadow-sm">
-                            <Edit3 size={16} />
+                          <button 
+                            onClick={() => handleEditClick(product)}
+                            className="p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-natural-border text-natural-text/40 hover:text-natural-primary transition-all shadow-sm flex items-center justify-center"
+                          >
+                            <Edit3 size={18} />
                           </button>
-                          <button className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-red-100 text-natural-text/40 hover:text-red-600 transition-all shadow-sm">
-                            <Trash2 size={16} />
+                          <button 
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="p-2.5 hover:bg-white rounded-xl border border-transparent hover:border-red-100 text-natural-text/40 hover:text-red-600 transition-all shadow-sm flex items-center justify-center"
+                          >
+                            <Trash2 size={18} />
                           </button>
                         </div>
                       </td>

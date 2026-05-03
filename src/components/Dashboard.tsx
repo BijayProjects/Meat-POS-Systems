@@ -103,7 +103,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <header>
-        <h2 className="text-3xl font-bold tracking-tight text-natural-text font-serif italic mb-2">Overview</h2>
+        <h2 className="text-3xl font-bold tracking-tight text-natural-text mb-2">Overview</h2>
         <p className="text-natural-text/60">Welcome back. Performance metrics for today.</p>
       </header>
 

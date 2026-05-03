@@ -20,10 +20,10 @@ interface SidebarProps {
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'pos', label: 'POS (Sales)', icon: ShoppingCart },
+  { id: 'pos', label: 'Items', icon: ShoppingCart },
   { id: 'inventory', label: 'Inventory', icon: Box },
   { id: 'expenses', label: 'Expenses', icon: ReceiptIndianRupee },
-  { id: 'history', label: 'Sale History', icon: History },
+  { id: 'reports', label: 'Sales Report', icon: History },
 ];
 
 export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {

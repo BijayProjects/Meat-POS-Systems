@@ -4,7 +4,7 @@ import Dashboard from './components/Dashboard';
 import POS from './components/POS';
 import Inventory from './components/Inventory';
 import Expenses from './components/Expenses';
-import History from './components/History';
+import Reports from './components/Reports';
 import Login from './components/Login';
 import { auth, onAuthStateChanged, User } from './lib/firebase';
 
@@ -27,7 +27,7 @@ export default function App() {
       case 'pos': return <POS />;
       case 'inventory': return <Inventory />;
       case 'expenses': return <Expenses />;
-      case 'history': return <History />;
+      case 'reports': return <Reports />;
       default: return <Dashboard />;
     }
   };

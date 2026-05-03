@@ -37,7 +37,7 @@ export default function SaleHistory() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-natural-text font-serif italic tracking-tight">Transaction History</h2>
+          <h2 className="text-3xl font-bold text-natural-text tracking-tight">Transaction History</h2>
           <p className="text-natural-text/60 mt-1">Review past orders and payment details ({sales.length} records)</p>
         </div>
         <div className="flex items-center gap-3">
@@ -77,7 +77,7 @@ export default function SaleHistory() {
             <tbody className="divide-y divide-natural-border">
               {filteredSales.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-8 py-16 text-center text-natural-text/40 font-bold uppercase tracking-widest text-xs italic">No transaction history found.</td>
+                  <td colSpan={6} className="px-8 py-16 text-center text-natural-text/40 font-bold uppercase tracking-widest text-xs">No transaction history found.</td>
                 </tr>
               ) : (
                 filteredSales.map(sale => {
@@ -85,7 +85,7 @@ export default function SaleHistory() {
                   return (
                     <tr key={sale.id} className="hover:bg-natural-sidebar/30 transition-colors group">
                       <td className="px-8 py-5">
-                        <span className="text-xs font-bold text-natural-text font-mono tracking-tight">{sale.id.slice(0, 8)}...</span>
+                        <span className="text-xs font-bold text-natural-text tracking-tight">{sale.id.slice(0, 8)}...</span>
                       </td>
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-1.5 text-natural-primary font-black text-[9px] uppercase tracking-widest bg-[#E9EDC9] px-3 py-1 rounded-full w-fit">

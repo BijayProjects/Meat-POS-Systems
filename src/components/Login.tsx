@@ -22,10 +22,10 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-[#F5F5F0] flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-xl border border-natural-border overflow-hidden text-center p-12">
-        <div className="w-20 h-20 bg-natural-primary rounded-xl flex items-center justify-center font-bold text-white italic text-4xl mx-auto mb-8 shadow-lg shadow-natural-primary/20">
+        <div className="w-20 h-20 bg-natural-primary rounded-xl flex items-center justify-center font-bold text-white text-4xl mx-auto mb-8 shadow-lg shadow-natural-primary/20">
           MM
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-natural-text font-serif italic mb-2">PrimeCut</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-natural-text mb-2">PrimeCut</h1>
         <p className="text-natural-text/60 mb-10">Smart POS & Accounting for Meat Shops</p>
         
         {error && (
