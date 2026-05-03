@@ -1,0 +1,56 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A product available for sale in the shop",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "enum": ["meat", "egg", "veg"] },
+        "price": { "type": "number" },
+        "unit": { "enum": ["kg", "pcs"] },
+        "stock": { "type": "number" },
+        "minStock": { "type": "number" }
+      },
+      "required": ["name", "category", "price", "unit", "stock"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "A customer transaction",
+      "type": "object",
+      "properties": {
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "date": { "type": "number" },
+        "paymentMethod": { "enum": ["cash", "card", "upi"] }
+      },
+      "required": ["items", "total", "date", "paymentMethod"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "A shop expenditure",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "enum": ["purchase", "rent", "utility", "salary", "transport", "other"] },
+        "date": { "type": "number" }
+      },
+      "required": ["title", "amount", "category", "date"]
+    }
+  },
+  "firestore": {
+    "/products": {
+      "schema": "Product",
+      "description": "Product inventory"
+    },
+    "/sales": {
+      "schema": "Sale",
+      "description": "Sales records"
+    },
+    "/expenses": {
+      "schema": "Expense",
+      "description": "Expense records"
+    }
+  }
+}
