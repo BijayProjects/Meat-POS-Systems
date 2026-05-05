@@ -169,10 +169,10 @@ export default function Expenses() {
   };
 
   const filteredExpenses = expenses.filter(e => 
-    e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.categoryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.referenceNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+    (e.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (e.vendorName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (e.categoryName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (e.referenceNumber || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalExpense = expenses.reduce((acc, curr) => acc + curr.amount, 0);
@@ -260,7 +260,7 @@ export default function Expenses() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-auto custom-scrollbar max-h-[600px] flex-1">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-natural-sidebar/40 border-b border-natural-border text-[10px] font-black text-natural-primary/50 uppercase tracking-[0.2em]">

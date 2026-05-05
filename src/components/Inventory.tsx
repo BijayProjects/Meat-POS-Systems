@@ -93,7 +93,7 @@ export default function Inventory() {
   };
 
   const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (p.name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -134,7 +134,7 @@ export default function Inventory() {
                 <X size={24} />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
+            <form onSubmit={handleSubmit} className="p-8 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
               <div>
                 <label className="block text-[10px] font-black text-natural-primary/40 uppercase tracking-[0.2em] mb-2">Product Name</label>
                 <input 
@@ -211,8 +211,8 @@ export default function Inventory() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-natural-border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-xl border border-natural-border shadow-sm overflow-hidden flex flex-col max-h-[600px]">
+        <div className="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-natural-sidebar/50 border-b border-natural-border">

@@ -25,6 +25,8 @@ import { cn } from '../lib/utils';
 import { dbService } from '../services/dbService';
 import { Product, Sale, Expense } from '../types';
 import { startOfDay, subDays, isWithinInterval, format } from 'date-fns';
+import { exportFullReport } from '../lib/exportUtils';
+import { Download } from 'lucide-react';
 
 interface StatCardProps {
   title: string;
@@ -102,9 +104,18 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <header>
-        <h2 className="text-3xl font-bold tracking-tight text-natural-text mb-2">Overview</h2>
-        <p className="text-natural-text/60">Welcome back. Performance metrics for today.</p>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight text-natural-text mb-2">Overview</h2>
+          <p className="text-natural-text/60">Welcome back. Performance metrics for today.</p>
+        </div>
+        <button 
+          onClick={() => exportFullReport(sales, products, expenses)}
+          className="flex items-center gap-2 px-6 py-2.5 text-xs font-black uppercase tracking-widest text-natural-primary bg-natural-sidebar border border-natural-border rounded-xl hover:opacity-80 transition-all shadow-sm"
+        >
+          <Download size={16} />
+          Export All Data
+        </button>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -166,7 +177,7 @@ export default function Dashboard() {
         <div className="bg-white p-6 rounded-xl border border-natural-border shadow-sm flex flex-col">
           <h3 className="font-semibold text-natural-text mb-6">Stock Alerts</h3>
           
-          <div className="flex-1 space-y-4 overflow-y-auto pr-2 scrollbar-none">
+          <div className="flex-1 space-y-4 overflow-y-auto pr-2 custom-scrollbar">
             {products.filter(p => (p.minStock ? p.stock <= p.minStock : p.stock <= 5)).map(p => (
               <div key={p.id} className="flex items-center justify-between p-4 rounded-xl bg-natural-accent/50 border border-natural-border">
                 <div>

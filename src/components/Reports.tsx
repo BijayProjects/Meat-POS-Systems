@@ -11,12 +11,15 @@ import {
   X,
   PieChart,
   BarChart3,
-  ChevronDown
+  ChevronDown,
+  Printer
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { Sale, Product, CartItem } from '../types';
+import { Sale, Product, CartItem, Expense } from '../types';
 import { format } from 'date-fns';
 import { dbService } from '../services/dbService';
+import ReceiptModal from './ReceiptModal';
+import { exportFullReport } from '../lib/exportUtils';
 
 const paymentIcons: Record<string, any> = {
   cash: Banknote,
@@ -27,8 +30,11 @@ const paymentIcons: Record<string, any> = {
 export default function Reports() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   
   // Manual sale form state
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -41,9 +47,11 @@ export default function Reports() {
   useEffect(() => {
     const unsubSales = dbService.subscribeSales(setSales);
     const unsubProducts = dbService.subscribeProducts(setProducts);
+    const unsubExpenses = dbService.subscribeExpenses(setExpenses);
     return () => {
       unsubSales();
       unsubProducts();
+      unsubExpenses();
     };
   }, []);
 
@@ -146,7 +154,10 @@ export default function Reports() {
             <Plus size={18} />
             Add Sold Product
           </button>
-          <button className="flex items-center gap-2 px-6 py-2.5 text-xs font-black uppercase tracking-widest text-natural-primary bg-natural-sidebar border border-natural-border rounded-xl hover:opacity-80 transition-all shadow-sm">
+          <button 
+            onClick={() => exportFullReport(sales, products, expenses)}
+            className="flex items-center gap-2 px-6 py-2.5 text-xs font-black uppercase tracking-widest text-natural-primary bg-natural-sidebar border border-natural-border rounded-xl hover:opacity-80 transition-all shadow-sm"
+          >
             <Download size={16} />
             Export Data
           </button>
@@ -315,7 +326,7 @@ export default function Reports() {
       </div>
 
       {/* Sales List */}
-      <div className="bg-white rounded-xl border border-natural-border shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-natural-border shadow-sm overflow-hidden flex flex-col max-h-[600px]">
         <div className="p-6 border-b border-natural-border bg-natural-sidebar/30">
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-natural-primary/40" size={16} />
@@ -329,7 +340,7 @@ export default function Reports() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-natural-sidebar/50 border-b border-natural-border text-[10px] font-black text-natural-primary/50 uppercase tracking-[0.2em]">
@@ -382,9 +393,21 @@ export default function Reports() {
                         <span className="text-sm font-black text-natural-text tracking-tight">Rs. {sale.total.toLocaleString()}</span>
                       </td>
                       <td className="px-8 py-5 text-right">
-                        <button className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-natural-border text-natural-text/40 hover:text-natural-primary transition-all shadow-sm opacity-0 group-hover:opacity-100">
-                          <Eye size={16} />
-                        </button>
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={() => {
+                              setSelectedSale(sale);
+                              setShowReceipt(true);
+                            }}
+                            className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-natural-border text-natural-text/40 hover:text-natural-primary transition-all shadow-sm"
+                            title="Print Receipt"
+                          >
+                            <Printer size={16} />
+                          </button>
+                          <button className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-natural-border text-natural-text/40 hover:text-natural-primary transition-all shadow-sm">
+                            <Eye size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -394,6 +417,12 @@ export default function Reports() {
           </table>
         </div>
       </div>
+      
+      <ReceiptModal 
+        isOpen={showReceipt} 
+        onClose={() => setShowReceipt(false)} 
+        sale={selectedSale} 
+      />
     </div>
   );
 }

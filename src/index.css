@@ -29,3 +29,40 @@
   scrollbar-width: none;
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #E5E2D9;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #BC6C25;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .receipt-content, .receipt-content * {
+    visibility: visible;
+  }
+  .receipt-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm; /* standard POS receipt width */
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    padding: 10px;
+  }
+  /* Hide standard headers/footers */
+  @page {
+    margin: 0;
+  }
+}
+

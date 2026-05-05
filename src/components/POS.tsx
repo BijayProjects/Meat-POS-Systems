@@ -12,8 +12,9 @@ import {
   ShoppingCart
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { Product, CartItem, Category } from '../types';
+import { Product, CartItem, Category, Sale } from '../types';
 import { dbService } from '../services/dbService';
+import ReceiptModal from './ReceiptModal';
 
 const categories: { id: Category | 'all'; label: string }[] = [
   { id: 'all', label: 'All Items' },
@@ -29,6 +30,8 @@ export default function POS() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'upi'>('cash');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [lastSale, setLastSale] = useState<Sale | null>(null);
 
   useEffect(() => {
     const unsubscribe = dbService.subscribeProducts(setProducts);
@@ -69,15 +72,28 @@ export default function POS() {
   const handleCheckout = async () => {
     if (cart.length === 0 || total <= 0) return;
     setIsProcessing(true);
+    const saleDate = Date.now();
     try {
-      await dbService.addSale({
+      const saleId = await dbService.addSale({
         items: cart,
         total: total,
-        date: Date.now(),
+        date: saleDate,
         paymentMethod
       });
+      
+      if (saleId) {
+        setLastSale({
+          id: saleId,
+          items: cart,
+          total: total,
+          date: saleDate,
+          paymentMethod
+        });
+        setShowReceipt(true);
+      }
+      
       setCart([]);
-      alert("Sale completed successfully!");
+      // alert("Sale completed successfully!"); // Removed alert to show receipt instead
     } catch (error) {
       console.error(error);
       alert("Checkout failed. Please check your connection.");
@@ -137,7 +153,7 @@ export default function POS() {
           ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pb-4 content-start">
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pb-4 content-start">
           {filteredProducts.map(product => (
             <button
               key={product.id}
@@ -196,7 +212,7 @@ export default function POS() {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-8 py-6 space-y-6">
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40">
               <div className="w-16 h-16 bg-natural-sidebar rounded-full flex items-center justify-center text-natural-primary">
@@ -291,17 +307,17 @@ export default function POS() {
           )}
         </div>
 
-        <div className="p-8 bg-[#F9F7F2] border-t border-natural-border space-y-6">
-          <div className="space-y-3">
-            <div className="flex justify-between text-xs font-bold text-natural-text/50 uppercase tracking-widest">
+        <div className="p-6 bg-[#F9F7F2] border-t border-natural-border space-y-4">
+          <div className="space-y-2">
+            <div className="flex justify-between text-[10px] font-bold text-natural-text/50 uppercase tracking-widest">
               <span>Subtotal</span>
               <span>Rs. {subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-xs font-bold text-natural-text/50 uppercase tracking-widest">
+            <div className="flex justify-between text-[10px] font-bold text-natural-text/50 uppercase tracking-widest">
               <span>Tax (GST 5%)</span>
               <span>Rs. {tax.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-xl font-black text-natural-text pt-4 border-t border-natural-border/60">
+            <div className="flex justify-between text-lg font-black text-natural-text pt-3 border-t border-natural-border/60">
               <span>Total</span>
               <span className="text-natural-primary">Rs. {total.toFixed(2)}</span>
             </div>
@@ -311,32 +327,32 @@ export default function POS() {
             <button 
               onClick={() => setPaymentMethod('cash')}
               className={cn(
-                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
+                "flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all",
                 paymentMethod === 'cash' ? "bg-natural-primary border-natural-primary text-white shadow-md" : "bg-white border-natural-border text-natural-primary/60 hover:border-natural-primary/30"
               )}
             >
-              <Banknote size={18} />
-              <span className="text-[9px] font-black uppercase tracking-widest">Cash</span>
+              <Banknote size={16} />
+              <span className="text-[8px] font-black uppercase tracking-widest">Cash</span>
             </button>
             <button 
               onClick={() => setPaymentMethod('card')}
               className={cn(
-                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
+                "flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all",
                 paymentMethod === 'card' ? "bg-natural-primary border-natural-primary text-white shadow-md" : "bg-white border-natural-border text-natural-primary/60 hover:border-natural-primary/30"
               )}
             >
-              <CreditCard size={18} />
-              <span className="text-[9px] font-black uppercase tracking-widest">Card</span>
+              <CreditCard size={16} />
+              <span className="text-[8px] font-black uppercase tracking-widest">Card</span>
             </button>
             <button 
               onClick={() => setPaymentMethod('upi')}
               className={cn(
-                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all",
+                "flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all",
                 paymentMethod === 'upi' ? "bg-natural-primary border-natural-primary text-white shadow-md" : "bg-white border-natural-border text-natural-primary/60 hover:border-natural-primary/30"
               )}
             >
-              <QrCode size={18} />
-              <span className="text-[9px] font-black uppercase tracking-widest">UPI</span>
+              <QrCode size={16} />
+              <span className="text-[8px] font-black uppercase tracking-widest">UPI</span>
             </button>
           </div>
 
@@ -344,7 +360,7 @@ export default function POS() {
             disabled={cart.length === 0 || isProcessing || total <= 0 || cart.some(item => calculateItemTotal(item) <= 0)}
             onClick={handleCheckout}
             className={cn(
-              "w-full py-5 rounded-xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg",
+              "w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg",
               (cart.length > 0 && total > 0 && cart.every(item => calculateItemTotal(item) > 0) && !isProcessing)
                 ? "bg-natural-primary text-natural-accent shadow-natural-primary/20 hover:opacity-90" 
                 : "bg-natural-border text-natural-text/30 cursor-not-allowed shadow-none"
@@ -355,6 +371,12 @@ export default function POS() {
           </button>
         </div>
       </div>
+      
+      <ReceiptModal 
+        isOpen={showReceipt} 
+        onClose={() => setShowReceipt(false)} 
+        sale={lastSale} 
+      />
     </div>
   );
 }
