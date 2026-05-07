@@ -68,7 +68,7 @@ export default function ReceiptModal({ isOpen, onClose, sale }: ReceiptModalProp
             className="bg-white p-8 shadow-sm border border-natural-border rounded-sm mx-auto w-full max-w-[300px] font-mono text-xs receipt-content"
           >
             <div className="text-center space-y-2 mb-6">
-              <h1 className="text-sm font-black uppercase tracking-widest">MEATMASTER POS</h1>
+              <h1 className="text-sm font-black uppercase tracking-widest">EDEN FRESH MEAT SHOP</h1>
               <p className="text-[9px] text-natural-text/60">123 Market Street, Downtown<br/>Phone: +1 234 567 890</p>
               <div className="h-px bg-natural-text/10 my-2" />
               <p className="text-[9px] uppercase font-bold tracking-tighter">
@@ -131,7 +131,7 @@ export default function ReceiptModal({ isOpen, onClose, sale }: ReceiptModalProp
                 </span>
               </div>
               <p className="text-[9px] italic opacity-60">Thank you for shopping with us!</p>
-              <p className="text-[7px] opacity-40">Software powered by MeatMaster</p>
+              <p className="text-[7px] opacity-40">Software powered by Eden Fresh Meat Shop</p>
             </div>
           </div>
         </div>

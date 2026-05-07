@@ -61,5 +61,5 @@ export const exportFullReport = (sales: Sale[], products: Product[], expenses: E
   const wsSummary = XLSX.utils.json_to_sheet(summaryData);
   XLSX.utils.book_append_sheet(wb, wsSummary, 'Executive Summary');
 
-  XLSX.writeFile(wb, `MeatMaster_Business_Report_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+  XLSX.writeFile(wb, `Eden_Fresh_Meat_Shop_Report_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
 };

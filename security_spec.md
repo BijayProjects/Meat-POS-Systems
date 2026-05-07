@@ -1,4 +1,4 @@
-# Security Specification - MeatMaster POS
+# Security Specification - Eden Fresh Meat Shop
 
 ## Data Invariants
 1. **Sales Integrity**: A sale record cannot be modified after creation. Total must match the sum of item prices.

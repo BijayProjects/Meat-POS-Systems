@@ -65,9 +65,9 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
             <div className="w-8 h-8 bg-natural-primary rounded-lg flex items-center justify-center text-white">
               <Box size={18} />
             </div>
-            <h1 className="text-xl font-bold tracking-tight">PrimeCut</h1>
+            <h1 className="text-xl font-bold tracking-tight">Eden Fresh</h1>
           </div>
-          <p className="text-[10px] text-natural-primary/60 uppercase tracking-widest font-bold mb-8">Shop Management</p>
+          <p className="text-[10px] text-natural-primary/60 uppercase tracking-widest font-bold mb-8">Meat Shop</p>
 
           <nav className="space-y-2 flex-1">
             {navItems.map((item) => (
