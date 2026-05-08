@@ -188,7 +188,7 @@ export default function Reports() {
                 >
                   <option value="">Select Product...</option>
                   {products.map(p => (
-                    <option key={p.id} value={p.id}>{p.name} ({p.stock} available)</option>
+                    <option key={p.id} value={p.id}>{p.name} ({p.stock.toFixed(2)} available)</option>
                   ))}
                 </select>
               </div>
@@ -256,11 +256,11 @@ export default function Reports() {
                 <div className="p-4 bg-natural-accent/20 rounded-xl border border-natural-border">
                   <div className="flex justify-between text-xs font-bold text-natural-primary/60 uppercase tracking-widest mb-1">
                     <span>Current Rate</span>
-                    <span>Rs. {selectedProduct.price} / {selectedProduct.unit}</span>
+                    <span>Rs. {selectedProduct.price.toFixed(2)} / {selectedProduct.unit}</span>
                   </div>
                   <div className="flex justify-between text-lg font-black text-natural-text">
                     <span>Summary Total</span>
-                    <span>Rs. {manualAmount.toLocaleString()}</span>
+                    <span>Rs. {manualAmount.toFixed(2)}</span>
                   </div>
                 </div>
               )}
@@ -297,8 +297,8 @@ export default function Reports() {
                     <p className="text-sm font-bold text-natural-text">{p.name}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-natural-text">Rs. {p.revenue.toLocaleString()}</p>
-                    <p className="text-[10px] font-bold text-natural-text/40 uppercase tracking-tight">{p.quantity} sold</p>
+                    <p className="text-sm font-black text-natural-text">Rs. {p.revenue.toFixed(2)}</p>
+                    <p className="text-[10px] font-bold text-natural-text/40 uppercase tracking-tight">{p.quantity.toFixed(2)} sold</p>
                   </div>
                 </div>
               ))
@@ -312,7 +312,7 @@ export default function Reports() {
             <div className="flex flex-wrap gap-12">
               <div>
                 <p className="text-white/30 text-[10px] uppercase font-black tracking-widest mb-2">Total Volume</p>
-                <p className="text-white text-3xl font-black tracking-tight">Rs. {sales.reduce((a, b) => a + b.total, 0).toLocaleString()}</p>
+                <p className="text-white text-3xl font-black tracking-tight">Rs. {sales.reduce((a, b) => a + b.total, 0).toFixed(2)}</p>
               </div>
               <div className="w-px h-12 bg-white/5 hidden sm:block" />
               <div>
@@ -369,7 +369,7 @@ export default function Reports() {
                         <div className="flex flex-col gap-1">
                           {sale.items.map((item, id) => (
                             <span key={id} className="font-bold text-natural-text/60">
-                              {item.name} <span className="text-[10px] text-natural-primary font-black uppercase ml-1">x {item.quantity} {item.unit}</span>
+                              {item.name} <span className="text-[10px] text-natural-primary font-black uppercase ml-1">x {item.quantity.toFixed(2)} {item.unit}</span>
                             </span>
                           ))}
                         </div>
@@ -390,7 +390,7 @@ export default function Reports() {
                         </div>
                       </td>
                       <td className="px-8 py-5 text-right">
-                        <span className="text-sm font-black text-natural-text tracking-tight">Rs. {sale.total.toLocaleString()}</span>
+                        <span className="text-sm font-black text-natural-text tracking-tight">Rs. {sale.total.toFixed(2)}</span>
                       </td>
                       <td className="px-8 py-5 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

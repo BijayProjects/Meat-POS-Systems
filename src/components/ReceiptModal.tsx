@@ -98,7 +98,7 @@ export default function ReceiptModal({ isOpen, onClose, sale }: ReceiptModalProp
                         <span className="text-[8px] opacity-60">@{item.price}/{item.unit}</span>
                       </td>
                       <td className="py-2 text-right">
-                        {item.quantity}{item.selectedUnit || item.unit}
+                        {item.quantity.toFixed(2)}{item.selectedUnit || item.unit}
                       </td>
                       <td className="py-2 text-right">
                         {itemPrice.toFixed(2)}

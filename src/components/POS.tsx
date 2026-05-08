@@ -172,10 +172,10 @@ export default function POS() {
                   <span className="text-[10px] font-bold text-natural-primary/50 uppercase tracking-widest">{product.category}</span>
                 </div>
                 <h3 className="font-bold text-natural-text mb-1 leading-tight">{product.name}</h3>
-                <p className="text-[10px] text-natural-text/40 font-bold uppercase tracking-wider mb-6">{product.stock} {product.unit} available</p>
+                <p className="text-[10px] text-natural-text/40 font-bold uppercase tracking-wider mb-6">{product.stock.toFixed(2)} {product.unit} available</p>
                 
                 <div className="mt-auto flex items-center justify-between">
-                  <span className="text-lg font-black text-natural-text">Rs. {product.price}</span>
+                  <span className="text-lg font-black text-natural-text">Rs. {product.price.toFixed(2)}</span>
                   <div className="p-2 bg-natural-primary text-white rounded-xl opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 shadow-sm shadow-natural-primary/20">
                     <Plus size={16} />
                   </div>
@@ -226,7 +226,7 @@ export default function POS() {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-sm font-bold text-natural-text leading-tight">{item.name}</p>
-                    <p className="text-[10px] font-bold text-natural-text/40 uppercase tracking-widest">Base: Rs. {item.price} / {item.unit}</p>
+                    <p className="text-[10px] font-bold text-natural-text/40 uppercase tracking-widest">Base: Rs. {item.price.toFixed(2)} / {item.unit}</p>
                   </div>
                   <button 
                     onClick={() => removeItem(item.id)}
@@ -366,7 +366,7 @@ export default function POS() {
                 : "bg-natural-border text-natural-text/30 cursor-not-allowed shadow-none"
             )}
           >
-            {isProcessing ? "Processing..." : `Charge Rs. ${total.toLocaleString()}`}
+            {isProcessing ? "Processing..." : `Charge Rs. ${total.toFixed(2)}`}
             {!isProcessing && <ChevronRight size={18} />}
           </button>
         </div>

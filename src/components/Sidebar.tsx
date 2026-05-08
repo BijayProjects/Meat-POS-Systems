@@ -8,10 +8,14 @@ import {
   Settings,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Download,
+  HelpCircle,
+  ExternalLink
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { logout } from '../lib/firebase';
+import { usePWA } from '../hooks/usePWA';
 
 interface SidebarProps {
   activeTab: string;
@@ -28,6 +32,8 @@ const navItems = [
 
 export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [showHelp, setShowHelp] = React.useState(false);
+  const { isInstallable, installApp } = usePWA();
 
   const handleLogout = async () => {
     try {
@@ -69,7 +75,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           </div>
           <p className="text-[10px] text-natural-primary/60 uppercase tracking-widest font-bold mb-8">Meat Shop</p>
 
-          <nav className="space-y-2 flex-1">
+          <nav className="space-y-1 flex-1">
             {navItems.map((item) => (
               <button
                 key={item.id}
@@ -93,6 +99,22 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           </nav>
 
           <div className="space-y-1 pt-4 border-t border-natural-border">
+            {isInstallable && (
+              <button 
+                onClick={installApp}
+                className="flex items-center gap-3 px-4 py-3 text-natural-primary hover:bg-natural-primary/10 text-sm font-bold transition-colors w-full rounded-xl"
+              >
+                <Download size={18} />
+                Download App
+              </button>
+            )}
+            <button 
+              onClick={() => setShowHelp(true)}
+              className="flex items-center gap-3 px-4 py-3 text-natural-text/60 hover:text-natural-text text-sm font-medium transition-colors w-full rounded-xl hover:bg-white/50"
+            >
+              <HelpCircle size={18} />
+              Help & Deploy
+            </button>
             <button className="flex items-center gap-3 px-4 py-3 text-natural-text/60 hover:text-natural-text text-sm font-medium transition-colors w-full rounded-xl hover:bg-white/50">
               <Settings size={18} />
               Settings
@@ -107,6 +129,72 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           </div>
         </div>
       </aside>
+
+      {/* Help Modal */}
+      {showHelp && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative">
+            <button 
+              onClick={() => setShowHelp(false)}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full"
+            >
+              <X size={20} />
+            </button>
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <HelpCircle className="text-natural-primary" />
+              Deployment & Installation
+            </h2>
+            
+            <div className="space-y-6 text-sm text-natural-text/80">
+              <section>
+                <h3 className="font-bold text-natural-text mb-2 flex items-center gap-2 uppercase tracking-wider text-[10px]">
+                  🚀 Deploy to Vercel
+                </h3>
+                <ol className="list-decimal list-inside space-y-2">
+                  <li>In the top right menu of AI Studio, go to **Settings**.</li>
+                  <li>Click **Export to GitHub** or **Export to ZIP**.</li>
+                  <li>Go to [vercel.com](https://vercel.com) and import your project.</li>
+                  <li>Add your Firebase environment variables in Vercel.</li>
+                </ol>
+              </section>
+
+              <section>
+                <h3 className="font-bold text-natural-text mb-2 flex items-center gap-2 uppercase tracking-wider text-[10px]">
+                  📱 Install on Devices (Mac/Phone)
+                </h3>
+                <p>This is a Progressive Web App (PWA). You can "install" it to your home screen or applications folder:</p>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>**Mac/Desktop**: Click the "Download App" button in the sidebar or the icon in your browser's address bar.</li>
+                  <li>**iPhone**: Tap the Share button in Safari and select "Add to Home Screen".</li>
+                  <li>**Android**: Tap the menu button in Chrome and select "Install app".</li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="font-bold text-natural-text mb-2 flex items-center gap-2 uppercase tracking-wider text-[10px]">
+                  🗄️ Database Access
+                </h3>
+                <p>You can access your real-time database here:</p>
+                <a 
+                  href="https://console.firebase.google.com/project/gemini-api-470919/firestore/databases/ai-studio-42879566-8389-424b-bd28-a093e362c9c9/data" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-2 text-natural-primary font-bold hover:underline"
+                >
+                  Firebase Console <ExternalLink size={14} />
+                </a>
+              </section>
+            </div>
+            
+            <button 
+              onClick={() => setShowHelp(false)}
+              className="w-full mt-8 py-3 bg-natural-primary text-white rounded-xl font-bold hover:opacity-90 transition-opacity"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -108,7 +108,7 @@ export default function SaleHistory() {
                         </div>
                       </td>
                       <td className="px-8 py-5 text-right">
-                        <span className="text-sm font-black text-natural-text tracking-tight">Rs. {sale.total.toLocaleString()}</span>
+                        <span className="text-sm font-black text-natural-text tracking-tight">Rs. {sale.total.toFixed(2)}</span>
                       </td>
                       <td className="px-8 py-5 text-right">
                         <button className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-natural-border text-natural-text/40 hover:text-natural-primary transition-all shadow-sm opacity-0 group-hover:opacity-100">

@@ -252,12 +252,12 @@ export default function Inventory() {
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex flex-col">
-                          <span className="text-sm font-black text-natural-text">{product.stock} {product.unit}</span>
-                          <span className="text-[10px] font-bold text-natural-text/30 uppercase tracking-wider">Refill: {product.minStock} {product.unit}</span>
+                          <span className="text-sm font-black text-natural-text">{product.stock.toFixed(2)} {product.unit}</span>
+                          <span className="text-[10px] font-bold text-natural-text/30 uppercase tracking-wider">Refill: {product.minStock?.toFixed(2)} {product.unit}</span>
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        <span className="text-sm font-black text-natural-text">Rs. {product.price}</span>
+                        <span className="text-sm font-black text-natural-text">Rs. {product.price.toFixed(2)}</span>
                       </td>
                       <td className="px-8 py-6">
                         {isLow ? (

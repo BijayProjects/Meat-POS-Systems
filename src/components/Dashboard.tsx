@@ -121,19 +121,19 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
           title="Today's Sales" 
-          value={`Rs. ${dailyRevenue.toLocaleString()}`} 
+          value={`Rs. ${dailyRevenue.toFixed(2)}`} 
           icon={TrendingUp}
           description={`Revenue from ${todaySales.length} orders`}
         />
         <StatCard 
           title="Today's Expenses" 
-          value={`Rs. ${dailyExp.toLocaleString()}`} 
+          value={`Rs. ${dailyExp.toFixed(2)}`} 
           icon={TrendingDown}
           description="Inventory and shop costs"
         />
         <StatCard 
           title="Potential Profit" 
-          value={`Rs. ${dailyProfit.toLocaleString()}`} 
+          value={`Rs. ${dailyProfit.toFixed(2)}`} 
           trendColor={dailyProfit >= 0 ? "bg-[#E9EDC9] text-[#606C38]" : "bg-red-50 text-red-700"}
           icon={Wallet}
           description="Net daily earnings"
@@ -166,6 +166,7 @@ export default function Dashboard() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#606C38', fontWeight: 600 }} />
                 <Tooltip 
                   contentStyle={{ borderRadius: '16px', border: '1px solid #E5E2D9', boxShadow: 'none', backgroundColor: '#FAF9F6' }}
+                  formatter={(value: any) => [`Rs. ${Number(value).toFixed(2)}`]}
                 />
                 <Area type="monotone" dataKey="sales" stroke="#606C38" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
                 <Area type="monotone" dataKey="expenses" stroke="#DDA15E" strokeWidth={2} fill="transparent" strokeDasharray="5 5" />
@@ -182,7 +183,7 @@ export default function Dashboard() {
               <div key={p.id} className="flex items-center justify-between p-4 rounded-xl bg-natural-accent/50 border border-natural-border">
                 <div>
                   <p className="text-sm font-bold text-natural-text">{p.name}</p>
-                  <p className="text-xs text-natural-tertiary font-bold uppercase tracking-wider">{p.stock} {p.unit} left</p>
+                  <p className="text-xs text-natural-tertiary font-bold uppercase tracking-wider">{p.stock.toFixed(2)} {p.unit} left</p>
                 </div>
                 <div className="p-2 bg-white rounded-xl border border-natural-border text-natural-tertiary shadow-sm">
                   <AlertTriangle size={14} />

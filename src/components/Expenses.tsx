@@ -202,7 +202,7 @@ export default function Expenses() {
             </div>
             <h3 className="text-[10px] font-black text-natural-primary/40 uppercase tracking-[0.2em]">Total Outflow</h3>
           </div>
-          <p className="text-4xl font-black text-natural-text">Rs. {totalExpense.toLocaleString()}</p>
+          <p className="text-4xl font-black text-natural-text">Rs. {totalExpense.toFixed(2)}</p>
         </div>
 
         <div className="bg-white p-8 rounded-2xl border border-natural-border shadow-sm">
@@ -213,7 +213,7 @@ export default function Expenses() {
             <h3 className="text-[10px] font-black text-natural-primary/40 uppercase tracking-[0.2em]">Inventory Cost</h3>
           </div>
           <p className="text-4xl font-black text-natural-text">
-            Rs. {expenses.filter(e => e.isInventory).reduce((acc, e) => acc + e.amount, 0).toLocaleString()}
+            Rs. {expenses.filter(e => e.isInventory).reduce((acc, e) => acc + e.amount, 0).toFixed(2)}
           </p>
         </div>
 
@@ -225,7 +225,7 @@ export default function Expenses() {
             <h3 className="text-[10px] font-black text-natural-primary/40 uppercase tracking-[0.2em]">Operational</h3>
           </div>
           <p className="text-4xl font-black text-natural-text">
-            Rs. {expenses.filter(e => !e.isInventory).reduce((acc, e) => acc + e.amount, 0).toLocaleString()}
+            Rs. {expenses.filter(e => !e.isInventory).reduce((acc, e) => acc + e.amount, 0).toFixed(2)}
           </p>
         </div>
 
@@ -313,10 +313,10 @@ export default function Expenses() {
                       </td>
                       <td className="px-8 py-6 text-right">
                         <div className="flex flex-col">
-                          <span className="text-base font-black text-natural-text tracking-tight">Rs. {expense.amount.toLocaleString()}</span>
+                          <span className="text-base font-black text-natural-text tracking-tight">Rs. {expense.amount.toFixed(2)}</span>
                           {expense.isInventory && (
                             <span className="text-[10px] text-natural-primary font-black uppercase tracking-widest opacity-60">
-                              {expense.quantity} {expense.unit} Recieved
+                              {expense.quantity.toFixed(2)} {expense.unit} Recieved
                             </span>
                           )}
                         </div>
