@@ -11,9 +11,18 @@ export default function Login() {
     setError(null);
     try {
       await loginWithGoogle();
-    } catch (err) {
-      console.error(err);
-      setError('Failed to sign in. Please try again.');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      const code = err?.code || '';
+      if (code === 'auth/unauthorized-domain') {
+        setError('This domain is not authorized in Firebase. Add it to Authentication > Settings > Authorized domains.');
+      } else if (code === 'auth/popup-closed-by-user') {
+        setError('Sign-in popup was closed. Please try again.');
+      } else if (code === 'auth/popup-blocked') {
+        setError('Pop-up was blocked by the browser. Please allow pop-ups for this site.');
+      } else {
+        setError(`Sign-in failed: ${err?.message || 'Unknown error'}. Code: ${code}`);
+      }
     } finally {
       setLoading(false);
     }
